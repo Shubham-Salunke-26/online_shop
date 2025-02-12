@@ -1,5 +1,6 @@
 name: Destroy All Infrastructure
 
+# This workflow is manually triggered via the GitHub Actions UI.
 on:
   workflow_dispatch:
     inputs:
@@ -12,11 +13,17 @@ jobs:
     name: Destroy Application and Backend Resources
     runs-on: ubuntu-latest
     steps:
+      #####################################################################
+      # Step 1: Checkout the Repository
+      #####################################################################
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           ref: github-action
 
+      #####################################################################
+      # Step 2: Setup Terraform CLI and Configure AWS Credentials
+      #####################################################################
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -29,7 +36,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      # --- Destroy Application Resources ---
+      #####################################################################
+      # Step 3: Destroy Application Resources (EC2, etc.)
+      #####################################################################
       - name: Initialize Terraform (Application Resources)
         run: terraform init
         working-directory: terraform/terraform_resources
@@ -47,8 +56,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-      # --- Destroy Backend Resources (S3 and DynamoDB) ---
-      - name: Initialize Terraform (Backend)
+      #####################################################################
+      # Step 4: Destroy Backend Resources (S3 Bucket and DynamoDB Table)
+      #####################################################################
+      - name: Initialize Terraform (Backend Resources)
         run: terraform init
         working-directory: terraform/terraform_backend
         env:
@@ -57,6 +68,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
+      # Debugging: List available S3 buckets to verify connectivity.
       - name: Debug - List S3 Buckets
         run: aws s3 ls
         env:
@@ -64,6 +76,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
+      # Debugging: List DynamoDB tables to verify connectivity.
       - name: Debug - List DynamoDB Tables
         run: aws dynamodb list-tables
         env:
@@ -71,6 +84,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
+      # Attempt to import the S3 bucket resource if it exists.
       - name: Import S3 Bucket (if exists)
         continue-on-error: true
         run: terraform import 'aws_s3_bucket.terraform_aws_s3_bucket[0]' ${{ secrets.AWS_S3_BUCKET }}
@@ -81,6 +95,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
+      # Attempt to import the DynamoDB table resource if it exists.
       - name: Import DynamoDB Table (if exists)
         continue-on-error: true
         run: terraform import 'aws_dynamodb_table.terraform_aws_db[0]' ${{ secrets.AWS_DYNAMODB_TABLE }}
@@ -91,7 +106,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-      # --- Empty the S3 Bucket Before Destroying Backend Resources ---
+      #####################################################################
+      # Step 5: Empty the S3 Bucket
+      #####################################################################
       - name: Empty S3 Bucket
         run: aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }} --recursive
         env:
@@ -99,6 +116,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
+      #####################################################################
+      # Step 6: Destroy Backend Resources
+      #####################################################################
       - name: Destroy Backend Resources
         run: terraform destroy --auto-approve -var="create_backend=true"
         working-directory: terraform/terraform_backend
