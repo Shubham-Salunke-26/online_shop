@@ -120,7 +120,7 @@ jobs:
       # Step 6: Destroy Backend Resources
       #####################################################################
       - name: Destroy Backend Resources
-        run: terraform destroy --auto-approve -var="create_backend=false"
+        run: terraform destroy --auto-approve -var="create_backend=true"
         working-directory: terraform/terraform_backend
         env:
           TF_VAR_create_backend: "true"
