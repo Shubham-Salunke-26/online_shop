@@ -212,27 +212,62 @@ jobs:
             sudo docker run -d -p 3000:3000 --name online_shop ${DOCKER_USERNAME}/online_shop:latest
           "
 
+  ###########################################################################
+  # Job 5: Send Notification Email (NEW)
+  ###########################################################################
   notify:
     name: Send Notification Email
     runs-on: ubuntu-latest
-    if: always()  # Runs regardless of previous job status
     needs: [terraform-backend, terraform-resources, docker, deploy]
+    if: always()  # Ensure this job runs regardless of previous outcomes
     steps:
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
+      - name: Send Email
+        uses: hilarion5/send-mail@v1
         with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Online Shop Pipeline - Workflow: ${{ github.workflow }} | Status: ${{ job.status }}"
-          body: |
-            **Workflow:** ${{ github.workflow }}
-            **Triggered by:** ${{ github.actor }}
-            **Repository:** ${{ github.repository }}
-            **Branch:** ${{ github.ref }}
-            **Run ID:** ${{ github.run_id }}
-            
-            This email is sent because the pipeline has completed with status: **${{ job.status }}**
-          to: amitabhsoni2004@gmail.com
-          from: GitHub Actions amitabhdevops2024@gmail.com
+          smtp-server: smtp.gmail.com
+          smtp-port: 465
+          smtp-secure: true
+          from-email: ${{ secrets.MAIL_FROM }}  # e.g., sender@example.com
+          to-email: amitabhsoni2004@gmail.com,trainwithshubham@gmail.com  # comma-separated list of recipients
+          username: ${{ secrets.MAIL_USERNAME }}  # your SMTP username
+          password: ${{ secrets.MAIL_PASSWORD }}  # your SMTP password or app password
+          subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
+          body: "The CI/CD pipeline for the Online Shop has completed."
+          html: |
+            <h2>GitHub Actions - Online Shop Pipeline</h2>
+            <p>Hello Team,</p>
+            <p>The pipeline for the Online Shop has just finished running.</p>
+            <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+              <tr style="background-color: #f2f2f2;">
+                <th align="left">Workflow</th>
+                <td>${{ github.workflow }}</td>
+              </tr>
+              <tr>
+                <th align="left">Status</th>
+                <td><strong>${{ job.status }}</strong></td>
+              </tr>
+              <tr>
+                <th align="left">Triggered by</th>
+                <td>${{ github.actor }}</td>
+              </tr>
+              <tr>
+                <th align="left">Repository</th>
+                <td>${{ github.repository }}</td>
+              </tr>
+              <tr>
+                <th align="left">Branch</th>
+                <td>${{ github.ref }}</td>
+              </tr>
+              <tr>
+                <th align="left">Run ID</th>
+                <td>
+                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+                    View Run #${{ github.run_id }}
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <br/>
+            <p style="font-style: italic;">
+              This email is sent automatically upon pipeline completion.
+            </p>

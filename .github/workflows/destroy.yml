@@ -130,22 +130,54 @@ jobs:
 
 
  # Final step: Send email notification regardless of success or failure
-      - name: Send Email Notification
-        if: always()  # Ensures this step runs even if previous steps failed
-        uses: dawidd6/action-send-mail@v3
+      - name: Send Email
+        if: always()  # This step runs even if previous steps fail
+        uses: hilarion5/send-mail@v1
         with:
-          server_address: smtp.gmail.com
-          server_port: 587
+          smtp-server: smtp.gmail.com
+          smtp-port: 465
+          smtp-secure: true
+          from-email: ${{ secrets.MAIL_FROM }}
+          to-email: amitabhsoni2004@gmail.com,trainwithshubham@gmail.com  # comma-separated list of recipients
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Destroy Workflow Notification - ${{ github.workflow }} | Status: ${{ job.status }}"
-          body: |
-            **Workflow:** ${{ github.workflow }}
-            **Triggered by:** ${{ github.actor }}
-            **Repository:** ${{ github.repository }}
-            **Branch:** ${{ github.ref }}
-            **Run ID:** ${{ github.run_id }}
-            
-            The destroy workflow has completed with status: **${{ job.status }}**
-          to: amitabhsoni2004@gmail.com
-          from: GitHub Actions amitabhdevops2024@gmail.com
+          subject: "Destroy Workflow Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
+          body: "The destroy workflow has completed."
+          html: |
+            <h2>GitHub Actions - Destroy Workflow</h2>
+            <p>Hello Team,</p>
+            <p>The destroy workflow has just completed.</p>
+            <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+              <tr style="background-color: #f2f2f2;">
+                <th align="left">Workflow</th>
+                <td>${{ github.workflow }}</td>
+              </tr>
+              <tr>
+                <th align="left">Status</th>
+                <td><strong>${{ job.status }}</strong></td>
+              </tr>
+              <tr>
+                <th align="left">Triggered by</th>
+                <td>${{ github.actor }}</td>
+              </tr>
+              <tr>
+                <th align="left">Repository</th>
+                <td>${{ github.repository }}</td>
+              </tr>
+              <tr>
+                <th align="left">Branch</th>
+                <td>${{ github.ref }}</td>
+              </tr>
+              <tr>
+                <th align="left">Run ID</th>
+                <td>
+                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+                    View Run #${{ github.run_id }}
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <br/>
+            <p style="font-style: italic;">
+              This email is sent automatically upon completion of the destroy workflow.
+            </p>
