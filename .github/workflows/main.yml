@@ -221,30 +221,41 @@ jobs:
     needs: [terraform-backend, terraform-resources, docker, deploy]
     if: always()  # Ensure this job runs regardless of previous outcomes
     steps:
+      # Step to determine overall pipeline status
+      - name: Determine overall pipeline status
+        id: pipeline-status
+        run: |
+          # Check if all required jobs succeeded
+          if [[ "${{ needs.terraform-backend.result }}" == "success" ]] \
+          && [[ "${{ needs.terraform-resources.result }}" == "success" ]] \
+          && [[ "${{ needs.docker.result }}" == "success" ]] \
+          && [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "result=Success ✅" >> $GITHUB_OUTPUT
+          else
+            echo "result=Failed ❌" >> $GITHUB_OUTPUT
+          fi
+
+      # Step to send notification email
       - name: Send Email
         uses: hilarion5/send-mail@v1
         with:
           smtp-server: smtp.gmail.com
           smtp-port: 465
           smtp-secure: true
-          from-email: ${{ secrets.MAIL_FROM }}  # e.g., sender@example.com
-          to-email: amitabhsoni2004@gmail.com,trainwithshubham@gmail.com  # comma-separated list of recipients
-          username: ${{ secrets.MAIL_USERNAME }}  # your SMTP username
-          password: ${{ secrets.MAIL_PASSWORD }}  # your SMTP password or app password
-          subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
+          from-email: ${{ secrets.MAIL_FROM }}
+          to-email: amitabhsoni2004@gmail.com,trainwithshubham@gmail.com
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
           body: "The CI/CD pipeline for the Online Shop has completed."
           html: |
             <h2>GitHub Actions - Online Shop Pipeline</h2>
             <p>Hello Team,</p>
-            <p>The pipeline for the Online Shop has just finished running.</p>
+            <p>The pipeline has completed with status: <strong>${{ steps.pipeline-status.outputs.result }}</strong></p>
             <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
               <tr style="background-color: #f2f2f2;">
                 <th align="left">Workflow</th>
                 <td>${{ github.workflow }}</td>
-              </tr>
-              <tr>
-                <th align="left">Status</th>
-                <td><strong>${{ job.status }}</strong></td>
               </tr>
               <tr>
                 <th align="left">Triggered by</th>
@@ -259,7 +270,7 @@ jobs:
                 <td>${{ github.ref }}</td>
               </tr>
               <tr>
-                <th align="left">Run ID</th>
+                <th align="left">Run Details</th>
                 <td>
                   <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
                     View Run #${{ github.run_id }}
@@ -267,7 +278,13 @@ jobs:
                 </td>
               </tr>
             </table>
-            <br/>
+            <h3>Job Statuses:</h3>
+            <ul>
+              <li>Terraform Backend: ${{ needs.terraform-backend.result }}</li>
+              <li>Terraform Resources: ${{ needs.terraform-resources.result }}</li>
+              <li>Docker Build: ${{ needs.docker.result }}</li>
+              <li>Deployment: ${{ needs.deploy.result }}</li>
+            </ul>
             <p style="font-style: italic;">
               This email is sent automatically upon pipeline completion.
             </p>
