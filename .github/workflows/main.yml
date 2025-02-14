@@ -247,21 +247,7 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
-          body: |-
-            CI/CD Pipeline Status: ${{ steps.pipeline-status.outputs.result }}
-            Workflow: ${{ github.workflow }}
-            Triggered by: ${{ github.actor }}
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref }}
-            Run Details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            
-            Job Statuses:
-            - Terraform Backend: ${{ needs.terraform-backend.result }}
-            - Terraform Resources: ${{ needs.terraform-resources.result }}
-            - Docker Build: ${{ needs.docker.result }}
-            - Deployment: ${{ needs.deploy.result }}
-            
-            This email is sent automatically upon pipeline completion.
+          body: ""
           html: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #24292e;">CI/CD Pipeline Notification</h2>
