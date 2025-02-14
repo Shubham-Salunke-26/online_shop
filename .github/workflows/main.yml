@@ -247,44 +247,44 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
-          body: "The CI/CD pipeline for the Online Shop has completed."
+          body: |-
+            CI/CD Pipeline Status: ${{ steps.pipeline-status.outputs.result }}
+            Workflow: ${{ github.workflow }}
+            Triggered by: ${{ github.actor }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Run Details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            Job Statuses:
+            - Terraform Backend: ${{ needs.terraform-backend.result }}
+            - Terraform Resources: ${{ needs.terraform-resources.result }}
+            - Docker Build: ${{ needs.docker.result }}
+            - Deployment: ${{ needs.deploy.result }}
+            
+            This email is sent automatically upon pipeline completion.
           html: |
-            <h2>GitHub Actions - Online Shop Pipeline</h2>
-            <p>Hello Team,</p>
-            <p>The pipeline has completed with status: <strong>${{ steps.pipeline-status.outputs.result }}</strong></p>
-            <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-              <tr style="background-color: #f2f2f2;">
-                <th align="left">Workflow</th>
-                <td>${{ github.workflow }}</td>
-              </tr>
-              <tr>
-                <th align="left">Triggered by</th>
-                <td>${{ github.actor }}</td>
-              </tr>
-              <tr>
-                <th align="left">Repository</th>
-                <td>${{ github.repository }}</td>
-              </tr>
-              <tr>
-                <th align="left">Branch</th>
-                <td>${{ github.ref }}</td>
-              </tr>
-              <tr>
-                <th align="left">Run Details</th>
-                <td>
-                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
-                    View Run #${{ github.run_id }}
-                  </a>
-                </td>
-              </tr>
-            </table>
-            <h3>Job Statuses:</h3>
-            <ul>
-              <li>Terraform Backend: ${{ needs.terraform-backend.result }}</li>
-              <li>Terraform Resources: ${{ needs.terraform-resources.result }}</li>
-              <li>Docker Build: ${{ needs.docker.result }}</li>
-              <li>Deployment: ${{ needs.deploy.result }}</li>
-            </ul>
-            <p style="font-style: italic;">
-              This email is sent automatically upon pipeline completion.
-            </p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #24292e;">CI/CD Pipeline Notification</h2>
+
+              
+              <div style="background-color: #f6f8fa; padding: 16px; border-radius: 6px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;"><strong>Workflow</strong></td><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;">${{ github.workflow }}</td></tr>
+                  <tr><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;"><strong>Triggered by</strong></td><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;">${{ github.actor }}</td></tr>
+                  <tr><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;"><strong>Repository</strong></td><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;">${{ github.repository }}</td></tr>
+                  <tr><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;"><strong>Run Details</strong></td><td style="padding: 8px; border-bottom: 1px solid #e1e4e8;"><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">View Run #${{ github.run_id }}</a></td></tr>
+                </table>
+              </div>
+      
+              <h3 style="margin-top: 16px;">Job Statuses</h3>
+              <ul style="padding-left: 20px;">
+                <li>Terraform Backend: ${{ needs.terraform-backend.result }}</li>
+                <li>Terraform Resources: ${{ needs.terraform-resources.result }}</li>
+                <li>Docker Build: ${{ needs.docker.result }}</li>
+                <li>Deployment: ${{ needs.deploy.result }}</li>
+              </ul>
+              
+              <p style="color: #6a737d; font-size: 0.9em; margin-top: 20px;">
+                This email was sent automatically by GitHub Actions.
+              </p>
+            </div>
