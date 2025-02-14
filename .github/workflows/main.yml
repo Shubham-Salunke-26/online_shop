@@ -226,8 +226,8 @@ jobs:
         with:
           connection_url: ${{ secrets.MAIL_CONNECTION }}
           subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
-          to: obiwan@example.com,yoda@example.com
-          from: "GitHub Actions <sender@example.com>"
+          to: amitabhsoni20040@gmail.com
+          from: "GitHub Actions amitabhdevops2024@gmail.com"
           body: ""  # Ensure the plain text body is empty so only HTML is used
           html_body: |
             <h2>GitHub Actions - Online Shop Pipeline</h2>
