@@ -249,57 +249,69 @@ jobs:
           subject: "CI/CD Pipeline Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
           body: ""
           html: |
-            <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: auto; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-              <h2 style="color: #24292e; text-align: center; margin-bottom: 10px;">🚀 CI/CD Pipeline Update</h2>
-              <p style="color: #6a737d; text-align: center; font-size: 14px; margin-bottom: 20px;">GitHub Actions Workflow Notification</p>
-
-              <div style="background: #f6f8fa; padding: 15px; border-radius: 6px; border-left: 4px solid #0366d6;">
-                <p><strong>Workflow:</strong> ${{ github.workflow }}</p>
-                <p><strong>Triggered by:</strong> ${{ github.actor }}</p>
-                <p><strong>Repository:</strong> ${{ github.repository }}</p>
-                <p><strong>Run Details:</strong> 
-                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
-                    style="color: #0366d6; text-decoration: none;">View Run #${{ github.run_id }}</a>
-                </p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff;">
+              <h2 style="color: #24292e; text-align: center;">🚀 CI/CD Pipeline Notification</h2>
+      
+              <div style="background-color: #f6f8fa; padding: 16px; border-radius: 6px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Workflow</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.workflow }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Triggered by</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.actor }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Repository</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.repository }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Run Details</strong></td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color: #0366d6; text-decoration: none;">View Run #${{ github.run_id }}</a>
+                    </td>
+                  </tr>
+                </table>
               </div>
-
-              <h3 style="margin-top: 20px; color: #24292e;">🛠 Job Status</h3>
-              <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <tr style="background: #f6f8fa; text-align: left;">
-                  <th style="padding: 12px; border-bottom: 2px solid #ddd;">Job</th>
-                  <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: center;">Status</th>
+      
+              <h3 style="margin-top: 16px;">🛠 Job Statuses</h3>
+              <table style="width: 100%; border-collapse: collapse; background-color: #fff;">
+                <tr style="background-color: #f6f8fa;">
+                  <th style="padding: 10px; text-align: left;">Job</th>
+                  <th style="padding: 10px; text-align: center;">Status</th>
                 </tr>
                 <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #ddd;">Terraform Backend</td>
-                  <td style="padding: 12px; text-align: center; font-weight: bold; color: white; border-radius: 4px;
-                    background-color: ${{ (needs.terraform-backend.result == 'success' && '#28a745') || '#d73a49' }};">
+                  <td style="padding: 10px;">Terraform Backend</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: 
+                    ${{ (needs.terraform-backend.result == 'success' && '#28a745') || '#d73a49' }}; border-radius: 4px;">
                     ${{ needs.terraform-backend.result }}
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #ddd;">Terraform Resources</td>
-                  <td style="padding: 12px; text-align: center; font-weight: bold; color: white; border-radius: 4px;
-                    background-color: ${{ (needs.terraform-resources.result == 'success' && '#28a745') || '#d73a49' }};">
+                  <td style="padding: 10px;">Terraform Resources</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: 
+                    ${{ (needs.terraform-resources.result == 'success' && '#28a745') || '#d73a49' }}; border-radius: 4px;">
                     ${{ needs.terraform-resources.result }}
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #ddd;">Docker Build</td>
-                  <td style="padding: 12px; text-align: center; font-weight: bold; color: white; border-radius: 4px;
-                    background-color: ${{ (needs.docker.result == 'success' && '#28a745') || '#d73a49' }};">
+                  <td style="padding: 10px;">Docker Build</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: 
+                    ${{ (needs.docker.result == 'success' && '#28a745') || '#d73a49' }}; border-radius: 4px;">
                     ${{ needs.docker.result }}
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding: 12px;">Deployment</td>
-                  <td style="padding: 12px; text-align: center; font-weight: bold; color: white; border-radius: 4px;
-                    background-color: ${{ (needs.deploy.result == 'success' && '#28a745') || '#d73a49' }};">
+                  <td style="padding: 10px;">Deployment</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: 
+                    ${{ (needs.deploy.result == 'success' && '#28a745') || '#d73a49' }}; border-radius: 4px;">
                     ${{ needs.deploy.result }}
                   </td>
                 </tr>
               </table>
-
-              <p style="color: #6a737d; font-size: 12px; margin-top: 20px; text-align: center;">
-                This email was sent automatically by <strong>GitHub Actions</strong>. 
+      
+              <p style="color: #6a737d; font-size: 0.9em; margin-top: 20px; text-align: center;">
+                This email was sent automatically by <strong>GitHub Actions</strong>.
               </p>
             </div>
