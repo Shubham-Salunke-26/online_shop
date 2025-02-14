@@ -211,3 +211,28 @@ jobs:
             sudo docker pull ${DOCKER_USERNAME}/online_shop:latest
             sudo docker run -d -p 3000:3000 --name online_shop ${DOCKER_USERNAME}/online_shop:latest
           "
+
+  notify:
+    name: Send Notification Email
+    runs-on: ubuntu-latest
+    if: always()  # Runs regardless of previous job status
+    needs: [terraform-backend, terraform-resources, docker, deploy]
+    steps:
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Online Shop Pipeline - Workflow: ${{ github.workflow }} | Status: ${{ job.status }}"
+          body: |
+            **Workflow:** ${{ github.workflow }}
+            **Triggered by:** ${{ github.actor }}
+            **Repository:** ${{ github.repository }}
+            **Branch:** ${{ github.ref }}
+            **Run ID:** ${{ github.run_id }}
+            
+            This email is sent because the pipeline has completed with status: **${{ job.status }}**
+          to: amitabhsoni2004@gmail.com
+          from: GitHub Actions amitabhdevops2024@gmail.com

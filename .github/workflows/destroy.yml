@@ -127,3 +127,25 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+
+
+ # Final step: Send email notification regardless of success or failure
+      - name: Send Email Notification
+        if: always()  # Ensures this step runs even if previous steps failed
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Destroy Workflow Notification - ${{ github.workflow }} | Status: ${{ job.status }}"
+          body: |
+            **Workflow:** ${{ github.workflow }}
+            **Triggered by:** ${{ github.actor }}
+            **Repository:** ${{ github.repository }}
+            **Branch:** ${{ github.ref }}
+            **Run ID:** ${{ github.run_id }}
+            
+            The destroy workflow has completed with status: **${{ job.status }}**
+          to: amitabhsoni2004@gmail.com
+          from: GitHub Actions amitabhdevops2024@gmail.com
