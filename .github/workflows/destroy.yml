@@ -156,7 +156,7 @@ jobs:
 
       - name: Destroy Backend Resources
         if: ${{ github.event.inputs.confirm == 'destroy' }}
-        run: terraform --auto-approve 
+        run: terraform destroy --auto-approve 
         working-directory: terraform/terraform_backend
         env:
           TF_VAR_create_backend: "true"
