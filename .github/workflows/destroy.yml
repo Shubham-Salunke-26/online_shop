@@ -42,7 +42,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
       #####################################################################
       # Step 3: Destroy Application Resources (only if confirmed)
@@ -55,7 +55,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
       #####################################################################
       # (Optional) Post-Destruction Cleanup Step
@@ -101,7 +101,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
       # Debug: List available S3 buckets to verify connectivity.
       - name: Debug - List S3 Buckets
@@ -132,7 +132,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
       - name: Import DynamoDB Table (if exists)
         if: ${{ github.event.inputs.confirm == 'destroy' }}
@@ -144,7 +144,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
       - name: Empty S3 Bucket
         if: ${{ github.event.inputs.confirm == 'destroy' }}
@@ -156,14 +156,14 @@ jobs:
 
       - name: Destroy Backend Resources
         if: ${{ github.event.inputs.confirm == 'destroy' }}
-        run: terraform destroy --auto-approve 
+        run: terraform --auto-approve 
         working-directory: terraform/terraform_backend
         env:
           TF_VAR_create_backend: "true"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
-          TF_LOG: DEBUG
+          # TF_LOG: DEBUG
 
   send-notification:
     name: Send Email Notification
