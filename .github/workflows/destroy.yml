@@ -116,7 +116,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-      #####################################################################
+      ##################################################################### 
       # Step 6: Destroy Backend Resources
       #####################################################################
       - name: Destroy Backend Resources
