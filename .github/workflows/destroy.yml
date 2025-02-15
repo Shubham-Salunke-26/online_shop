@@ -33,7 +33,7 @@ jobs:
           aws-region: eu-west-1
 
       #####################################################################
-      # Step 2: Initialize and Destroy Application Resources
+      # Step 2: Initialize Terraform (Application Resources)
       #####################################################################
       - name: Initialize Terraform (Application Resources)
         run: terraform init
@@ -42,7 +42,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
 
+      #####################################################################
+      # Step 3: Destroy Application Resources (only if confirmed)
+      #####################################################################
       - name: Destroy Application Resources
         if: ${{ github.event.inputs.confirm == 'destroy' }}
         run: terraform destroy --auto-approve
@@ -51,6 +55,15 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
+
+      #####################################################################
+      # (Optional) Post-Destruction Cleanup Step
+      # Add any cleanup commands if needed here.
+      #####################################################################
+      - name: Cleanup Temporary Files (if any)
+        if: ${{ github.event.inputs.confirm == 'destroy' }}
+        run: echo "No temporary files to cleanup."
 
   destroy-backend:
     name: Destroy Backend Resources
@@ -77,7 +90,7 @@ jobs:
           aws-region: eu-west-1
 
       #####################################################################
-      # Step 2: Initialize Terraform for Backend and Debug Connectivity
+      # Step 2: Initialize Terraform (Backend Resources) and Debug Connectivity
       #####################################################################
       - name: Initialize Terraform (Backend Resources)
         run: terraform init
@@ -87,8 +100,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
 
-      # Debugging: List available S3 buckets to verify connectivity.
+      # Debug: List available S3 buckets to verify connectivity.
       - name: Debug - List S3 Buckets
         run: aws s3 ls
         env:
@@ -96,7 +110,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-      # Debugging: List available DynamoDB tables to verify connectivity.
+      # Debug: List available DynamoDB tables to verify connectivity.
       - name: Debug - List DynamoDB Tables
         run: aws dynamodb list-tables
         env:
@@ -105,9 +119,10 @@ jobs:
           AWS_REGION: eu-west-1
 
       #####################################################################
-      # Step 3: Import, Empty, and Destroy Backend Resources
+      # Step 3: Import, Empty, and Destroy Backend Resources (only if confirmed)
       #####################################################################
       - name: Import S3 Bucket (if exists)
+        if: ${{ github.event.inputs.confirm == 'destroy' }}
         continue-on-error: true
         run: terraform import 'aws_s3_bucket.terraform_aws_s3_bucket[0]' ${{ secrets.AWS_S3_BUCKET }}
         working-directory: terraform/terraform_backend
@@ -116,8 +131,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
 
       - name: Import DynamoDB Table (if exists)
+        if: ${{ github.event.inputs.confirm == 'destroy' }}
         continue-on-error: true
         run: terraform import 'aws_dynamodb_table.terraform_aws_db[0]' ${{ secrets.AWS_DYNAMODB_TABLE }}
         working-directory: terraform/terraform_backend
@@ -126,8 +143,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
 
       - name: Empty S3 Bucket
+        if: ${{ github.event.inputs.confirm == 'destroy' }}
         run: aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }} --recursive
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -135,6 +154,7 @@ jobs:
           AWS_REGION: eu-west-1
 
       - name: Destroy Backend Resources
+        if: ${{ github.event.inputs.confirm == 'destroy' }}
         run: terraform destroy --auto-approve 
         working-directory: terraform/terraform_backend
         env:
@@ -142,12 +162,13 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          TF_LOG: DEBUG
 
   send-notification:
     name: Send Email Notification
     runs-on: ubuntu-latest
     needs: [destroy-resources, destroy-backend]
-    if: always()  # Runs regardless of previous job statuses
+    if: always()  # Runs regardless of previous job outcomes
     steps:
       - name: Send Email
         uses: hilarion5/send-mail@v1
@@ -159,7 +180,7 @@ jobs:
           to-email: amitabhsoni2004@gmail.com  # Comma-separated list if needed
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Destroy Workflow Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
+          subject: "Destroy Workflow Notification: ${{ github.workflow }} - Overall Status: ${{ job.status }}"
           body: ""
           html: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff;">
@@ -195,9 +216,15 @@ jobs:
                   <th style="padding: 10px; text-align: center;">Status</th>
                 </tr>
                 <tr>
-                  <td style="padding: 10px;">Destroy Resources</td>
-                  <td style="padding: 10px; text-align: center; color: white; background-color: ${{ job.status == 'success' && '#28a745' || '#d73a49' }}; border-radius: 4px;">
-                    ${{ job.status }}
+                  <td style="padding: 10px;">Destroy Application Resources</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: ${{ needs.destroy-resources.result == 'success' && '#28a745' || '#d73a49' }}; border-radius: 4px;">
+                    ${{ needs.destroy-resources.result }}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px;">Destroy Backend Resources</td>
+                  <td style="padding: 10px; text-align: center; color: white; background-color: ${{ needs.destroy-backend.result == 'success' && '#28a745' || '#d73a49' }}; border-radius: 4px;">
+                    ${{ needs.destroy-backend.result }}
                   </td>
                 </tr>
               </table>
