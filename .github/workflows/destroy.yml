@@ -68,6 +68,7 @@ jobs:
   destroy-backend:
     name: Destroy Backend Resources
     runs-on: ubuntu-latest
+    needs: destroy-resources
     steps:
       #####################################################################
       # Step 1: Checkout, Setup Terraform, and Configure AWS Credentials
@@ -170,6 +171,18 @@ jobs:
     needs: [destroy-resources, destroy-backend]
     if: always()  # Runs regardless of previous job outcomes
     steps:
+      # 1) Determine overall pipeline status
+      - name: Determine Pipeline Status
+        id: pipeline-status
+        run: |
+          # We'll check the results of the two jobs we "need"
+          # and create an output variable "result" accordingly.
+          if [ "${{ needs.destroy-resources.result }}" = "success" ] && [ "${{ needs.destroy-backend.result }}" = "success" ]; then
+            echo "result=Success ✅" >> $GITHUB_OUTPUT
+          else
+            echo "result=Failed ❌" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send Email
         uses: hilarion5/send-mail@v1
         with:
@@ -180,7 +193,7 @@ jobs:
           to-email: amitabhsoni2004@gmail.com  # Comma-separated list if needed
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Destroy Workflow Notification: ${{ github.workflow }} - Overall Status: ${{ job.status }}"
+          subject: "Destroy Workflow Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
           body: ""
           html: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff;">
