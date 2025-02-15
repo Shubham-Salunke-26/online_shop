@@ -128,8 +128,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-
- # Final step: Send email notification regardless of success or failure
+      #####################################################################
+      # Final step: Send email notification regardless of success or failure
+      #####################################################################
       - name: Send Email
         if: always()  # This step runs even if previous steps fail
         uses: hilarion5/send-mail@v1
@@ -142,34 +143,50 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Destroy Workflow Notification: ${{ github.workflow }} - Status: ${{ job.status }}"
-          body: "The destroy workflow has completed."
+          body: ""
           html: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff;">
-              <h2 style="color: #24292e; text-align: center;">🚀 CI/CD Pipeline Notification</h2>
-      
+              <h2 style="color: #24292e; text-align: center;">🔥 Destroy Workflow Notification</h2>
+
               <div style="background-color: #f6f8fa; padding: 16px; border-radius: 6px;">
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Workflow</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.workflow }}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Triggered by</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.actor }}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Repository</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">${{ github.repository }}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Run Details</strong></td>
                     <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                      <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color: #0366d6; text-decoration: none;">View Run #${{ github.run_id }}</a>
+                      <strong>Workflow</strong>
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      ${{ github.workflow }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      <strong>Triggered by</strong>
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      ${{ github.actor }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      <strong>Repository</strong>
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      ${{ github.repository }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      <strong>Run Details</strong>
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                      <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" style="color: #0366d6; text-decoration: none;">
+                        View Run #${{ github.run_id }}
+                      </a>
                     </td>
                   </tr>
                 </table>
               </div>
-      
+
               <h3 style="margin-top: 16px;">🛠 Job Statuses</h3>
               <table style="width: 100%; border-collapse: collapse; background-color: #fff;">
                 <tr style="background-color: #f6f8fa;">
@@ -179,12 +196,12 @@ jobs:
                 <tr>
                   <td style="padding: 10px;">Destroy Resources</td>
                   <td style="padding: 10px; text-align: center; color: white; background-color: 
-                    ${{ (needs.destroy-resources.result == 'success' && '#28a745') || '#d73a49' }}; border-radius: 4px;">
-                    ${{ needs.destroy-resources.result }}
+                    ${{ job.status == 'success' && '#28a745' || '#d73a49' }}; border-radius: 4px;">
+                    ${{ job.status }}
                   </td>
                 </tr>
               </table>
-      
+
               <p style="color: #6a737d; font-size: 0.9em; margin-top: 20px; text-align: center;">
                 This email was sent automatically by <strong>GitHub Actions</strong>.
               </p>
