@@ -190,7 +190,7 @@ jobs:
           smtp-port: 465
           smtp-secure: true
           from-email: ${{ secrets.MAIL_FROM }}
-          to-email: amitabhsoni2004@gmail.com  # Comma-separated list if needed
+          to-email: amitabhsoni2004@gmail.com,trainwithshubham@gmail.com  # Comma-separated list if needed
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Destroy Workflow Notification: ${{ github.workflow }} - ${{ steps.pipeline-status.outputs.result }}"
