@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: github-action
+          ref: copy-github-action
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -76,7 +76,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: github-action
+          ref: copy-github-action
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
