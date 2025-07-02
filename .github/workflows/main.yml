@@ -4,7 +4,7 @@ name: CI/CD Pipeline for Online Shop
 on:
   push:
     branches:
-      - copy-github-action
+      - github-action
 
 jobs:
   ###########################################################################
