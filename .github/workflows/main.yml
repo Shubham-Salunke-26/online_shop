@@ -1,10 +1,10 @@
 name: CI/CD Pipeline for Online Shop
 
-# Trigger the workflow on pushes to the 'github-action' branch.
+# Trigger the workflow on pushes to the 'github-action1' branch.
 on:
   push:
     branches:
-      - github-action
+      - github-action1
 
 jobs:
   ###########################################################################
@@ -46,15 +46,29 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Step 6: Check if the S3 Bucket exists.
+      # Step 6: SMART BACKEND DETECTION - Check if S3 Bucket exists for Terraform backend
+      # This prevents errors when trying to create resources that already exist
       - name: Check if S3 Bucket Exists
         id: check_bucket
         run: |
+          echo "🔍 Checking if S3 bucket exists for Terraform backend..."
+          
+          # Try to list the S3 bucket contents
+          # 2>&1 redirects stderr (error messages) to stdout so we can capture them
+          # grep -q searches for 'NoSuchBucket' error message quietly (no output, just exit code)
           if aws s3 ls "s3://${{ secrets.AWS_S3_BUCKET }}" 2>&1 | grep -q 'NoSuchBucket'; then
+            # BUCKET DOESN'T EXIST - Set CREATE_BACKEND=true
+            # This tells Terraform: "Please create the S3 bucket and DynamoDB table"
             echo "CREATE_BACKEND=true" >> $GITHUB_ENV
+            echo "🔧 S3 bucket not found. Will create backend resources."
           else
+            # BUCKET EXISTS - Set CREATE_BACKEND=false  
+            # This tells Terraform: "Skip creating backend resources, they already exist"
             echo "CREATE_BACKEND=false" >> $GITHUB_ENV
+            echo "✅ S3 bucket found. Will use existing backend resources."
           fi
+          
+          echo "🎯 CREATE_BACKEND variable will be passed to Terraform as var.create_backend"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -67,9 +81,15 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Step 8: Apply the Terraform backend configuration.
+      # Step 8: Apply Terraform backend configuration with conditional logic
+      # The CREATE_BACKEND variable from Step 6 is automatically available here
+      # Terraform will use it in: count = var.create_backend ? 1 : 0
       - name: Apply Backend Configuration
-        run: terraform apply --auto-approve -var="create_backend=$CREATE_BACKEND"
+        run: |
+          echo "🚀 Applying Terraform backend configuration..."
+          echo "📝 CREATE_BACKEND value: $CREATE_BACKEND"
+          echo "🎯 This will be passed to Terraform as var.create_backend"
+          terraform apply --auto-approve -var="create_backend=$CREATE_BACKEND"
         working-directory: terraform/terraform_backend
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

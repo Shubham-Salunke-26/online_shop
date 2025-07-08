@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: github-action
+          ref: github-action1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -76,7 +76,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: github-action
+          ref: github-action1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -96,8 +96,12 @@ jobs:
       - name: Initialize Terraform (Backend Resources)
         run: terraform init
         working-directory: terraform/terraform_backend
+
+        # IMPORTANT: TF_VAR_create_backend="true" forces Terraform to recognize backend resources exist
+        # Without this, Terraform thinks create_backend=false (default) → count=0 → "no resources to destroy"
+        # With this, Terraform knows create_backend=true → count=1 → "found resources, destroying them"
         env:
-          TF_VAR_create_backend: "true"
+          TF_VAR_create_backend: "true" # This is the magic line for proper cleanup!
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
