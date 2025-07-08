@@ -1,10 +1,10 @@
 name: CI/CD Pipeline for Online Shop
 
-# Trigger the workflow on pushes to the 'github-action1' branch.
+# Trigger the workflow on pushes to the 'github-action' branch.
 on:
   push:
     branches:
-      - github-action1
+      - github-action
 
 jobs:
   ###########################################################################
