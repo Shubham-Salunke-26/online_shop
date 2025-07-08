@@ -31,8 +31,13 @@ variable "aws_db_hashkey" {
 }
 
 
+# CONDITIONAL BACKEND CREATION - Controls S3 bucket and DynamoDB table creation
+# - true = Create backend resources (first run when bucket doesn't exist)
+# - false = Skip creation (subsequent runs when bucket exists)
+# - Value comes from GitHub Actions: terraform apply -var="create_backend=$CREATE_BACKEND"
 variable "create_backend" {
-  description = "Whether to create the backend resources (true for initial run)"
+  description = "Whether to create the backend resources (S3 + DynamoDB). Set by GitHub Actions based on bucket existence check."
   type        = bool
-  default     = false
+  default     = false  # Safe default - don't create unless explicitly requested
 }
+
