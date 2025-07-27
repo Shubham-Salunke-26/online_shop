@@ -1,4 +1,4 @@
-# Build stage
+# 1 Build stage
 FROM node:20-alpine as build
 
 # Set working directory
@@ -16,7 +16,7 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Production stage
+# 2 Production stage
 FROM node:20-alpine
 
 WORKDIR /app
