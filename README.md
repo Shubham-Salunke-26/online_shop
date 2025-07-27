@@ -1,17 +1,3 @@
-# Online Shop 🛍️
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub Profile](https://img.shields.io/badge/GitHub-iemafzalhassan-blue?logo=github&style=flat)](https://github.com/iemafzalhassan)
-![Forks](https://img.shields.io/github/forks/iemafzalhassan/online_shop)
-[![Stars](https://img.shields.io/github/stars/iemafzalhassan/online_shop)](https://github.com/iemafzalhassan/online_shop)
-![GitHub last commit](https://img.shields.io/github/last-commit/iemafzalhassan/easyshop?color=red)
-<p align="center">
-
-
-A modern, responsive e-commerce platform built with React, featuring a sophisticated dark/light theme system and advanced product management.
-
-
-
-
 ## 🌟 Features
 
 - **Responsive Design**: Fully responsive UI that works seamlessly across all devices
@@ -119,10 +105,6 @@ online-shop/
 └── package.json         # Project dependencies
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
@@ -144,17 +126,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - Docker containerization support
 - Automated dependency updates
 
-## 📈 Future Roadmap
-
-See our detailed [ROADMAP.md](ROADMAP.md) for planned features and improvements.
-
-Key upcoming features:
-- User authentication system
-- Product reviews and ratings
-- Admin dashboard improvements
-- Payment gateway integration
-- Performance optimizations
-
 ## 📊 Monitoring & Telemetry
 
 - Integration with OpenTelemetry for observability
@@ -162,10 +133,6 @@ Key upcoming features:
 - Error tracking
 - User behavior analytics
 
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -175,4 +142,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email iemafzalhassan@gmail.com or join our [Discord channel](https://discord.gg/aVMWfSKA). 
+For support, email salunkeshubham801@gmail.com .
